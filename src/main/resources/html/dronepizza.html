@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DronePizza Administration</title>
+    <link rel="stylesheet" href="/static/dronepizza.css">
+</head>
+<body>
+<header>
+    <h1>DronePizza Administration</h1>
+</header>
+
+<main>
+    <section id="deliveries">
+        <h2>Undelivered Deliveries</h2>
+        <ul id="delivery-list">
+            <!-- Deliveries will be dynamically loaded here -->
+        </ul>
+    </section>
+
+    <section id="drones">
+        <h2>Drones</h2>
+        <ul id="drone-list">
+            <!-- Drones will be dynamically loaded here -->
+        </ul>
+    </section>
+
+    <section id="actions">
+        <h2>Actions</h2>
+        <button id="add-drone">Add New Drone</button>
+        <button id="simulate-delivery">Simulate New Delivery</button>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2025 DronePizza</p>
+</footer>
+
+<script src="/javascript/dronepizza.js"></script>
+</body>
+</html>
