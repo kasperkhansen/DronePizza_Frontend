@@ -22,24 +22,28 @@ async function loadDeliveries() {
         const deliveries = await response.json();
 
         const deliveryList = document.getElementById("delivery-list");
-        deliveryList.innerHTML = ""; // Clear the list
+        deliveryList.innerHTML = ""; // Rens listen
+
+        console.log(deliveries);
 
         deliveries.forEach(delivery => {
             const deliveryItem = document.createElement("li");
 
             const droneInfo = delivery.drone
                 ? `Drone ID: ${delivery.drone.id}`
-                : "No drone assigned";
+                : "Ingen drone tildelt";
+
+            console.log("droneInfo", delivery.drone);
 
             deliveryItem.innerHTML = `
                 <span>
-                    <strong>Address:</strong> ${delivery.address} <br>
-                    <strong>Expected Delivery:</strong> ${delivery.expectedDeliveryTime} <br>
+                    <strong>Adresse:</strong> ${delivery.adresse} <br>
+                    <strong>Forventet levering:</strong> ${delivery.expectedDeliveryTime} <br>
                     <strong>${droneInfo}</strong>
                 </span>
                 ${
                 !delivery.drone
-                    ? `<button onclick="assignDrone(${delivery.id})">Assign Drone</button>`
+                    ? `<button onclick="assignDrone(${delivery.id})">Tildel Drone</button>`
                     : ""
             }
             `;
@@ -47,7 +51,7 @@ async function loadDeliveries() {
             deliveryList.appendChild(deliveryItem);
         });
     } catch (error) {
-        console.error("Error loading deliveries:", error);
+        console.error("Fejl ved indlæsning af leveringer:", error);
     }
 }
 
@@ -57,7 +61,7 @@ async function loadDrones() {
         const drones = await response.json();
 
         const droneList = document.getElementById("drone-list");
-        droneList.innerHTML = ""; // Clear the list
+        droneList.innerHTML = ""; // Rens listen
 
         drones.forEach(drone => {
             const droneItem = document.createElement("li");
@@ -67,15 +71,15 @@ async function loadDrones() {
                     <strong>UUID:</strong> ${drone.uuid} <br>
                     <strong>Status:</strong> ${drone.status} <br>
                 </span>
-                <button onclick="changeDroneStatus(${drone.id}, 'enable')">Enable</button>
-                <button onclick="changeDroneStatus(${drone.id}, 'disable')">Disable</button>
-                <button onclick="changeDroneStatus(${drone.id}, 'retire')">Retire</button>
+                <button onclick="changeDroneStatus(${drone.id}, 'enable')">I drift</button>
+                <button onclick="changeDroneStatus(${drone.id}, 'disable')">Ude af drift</button>
+                <button onclick="changeDroneStatus(${drone.id}, 'retire')">Udfaset</button>
             `;
 
             droneList.appendChild(droneItem);
         });
     } catch (error) {
-        console.error("Error loading drones:", error);
+        console.error("Fejl ved indlæsning af droner:", error);
     }
 }
 
@@ -87,30 +91,46 @@ async function addDrone() {
 
         loadDrones();
     } catch (error) {
-        console.error("Error adding drone:", error);
+        console.error("Fejl ved tilføjelse af drone:", error);
     }
 }
 
 async function assignDrone(deliveryId) {
     try {
-        const assignDroneUrl = `${deliveriesUrl}/${deliveryId}/schedule`;
-        const response = await fetch(assignDroneUrl, { method: "POST" });
+        const assignDroneUrl = `${deliveriesUrl}/${deliveryId}/plan`; // Rettet endpoint
+        const droneId = prompt("Indtast Drone ID for tildeling:");
+
+        console.log(droneId);
+
+        if (!droneId) {
+            alert("Drone ID er påkrævet.");
+            return;
+        }
+
+        const response = await fetch(assignDroneUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `droneId=${encodeURIComponent(droneId)}`,
+        });
+
         const message = await response.text();
         alert(message);
 
         loadDeliveries();
     } catch (error) {
-        console.error("Error assigning drone:", error);
+        console.error("Fejl ved tildeling af drone:", error);
     }
 }
 
 async function simulateDelivery() {
     try {
-        const pizzaId = prompt("Enter Pizza ID:");
-        const address = prompt("Enter Delivery Address:");
+        const pizzaId = prompt("Indtast Pizza ID:");
+        const adresse = prompt("Indtast leveringsadresse:");
 
-        if (!pizzaId || !address) {
-            alert("Both Pizza ID and Address are required.");
+        if (!pizzaId || !adresse) {
+            alert("Både Pizza ID og adresse er påkrævet.");
             return;
         }
 
@@ -119,7 +139,7 @@ async function simulateDelivery() {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: `pizzaId=${pizzaId}&address=${encodeURIComponent(address)}`,
+            body: `pizzaId=${pizzaId}&adresse=${encodeURIComponent(adresse)}`, // Rettet parameter til 'adresse'
         });
 
         const message = await response.text();
@@ -127,7 +147,7 @@ async function simulateDelivery() {
 
         loadDeliveries();
     } catch (error) {
-        console.error("Error simulating delivery:", error);
+        console.error("Fejl ved simulering af levering:", error);
     }
 }
 
@@ -139,6 +159,6 @@ async function changeDroneStatus(droneId, status) {
 
         loadDrones();
     } catch (error) {
-        console.error(`Error changing drone status to ${status}:`, error);
+        console.error(`Fejl ved ændring af dronestatus til ${status}:`, error);
     }
 }
